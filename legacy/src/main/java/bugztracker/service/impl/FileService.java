@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,11 +27,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-/**
- * Created by oleg
- * Date: 01.11.15
- * Time: 17:44
- */
 @Service
 public class FileService implements IFileService {
 
@@ -44,7 +38,7 @@ public class FileService implements IFileService {
     @Autowired
     private IIssueAttachmentService attachmentService;
 
-    @Transactional
+    @PostConstruct
     private void cleanAttachments() {
         String rootPath = uriBuilder.buildRootPathForAttachments();
         List<IssueAttachment> allAttachments = attachmentService.getAll();
@@ -57,7 +51,6 @@ public class FileService implements IFileService {
         }
     }
 
-    @Transactional
     @Override
     public void save(List<MultipartFile> files, int issueId) {
         for (MultipartFile multipart : files) {
@@ -117,7 +110,6 @@ public class FileService implements IFileService {
         return new File(attachment.getAttachmentPath());
     }
 
-    @Transactional
     @Override
     public void remove(int issueId, String fileName) {
         String folder = uriBuilder.buildPathForIssueFolder(issueId);

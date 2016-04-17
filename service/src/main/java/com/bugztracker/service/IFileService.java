@@ -5,11 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.List;
 
-/**
- * Created by oleg
- * Date: 01.11.15
- * Time: 17:41
- */
 public interface IFileService {
 
     void save(List<MultipartFile> file, String issueId);

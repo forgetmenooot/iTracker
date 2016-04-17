@@ -81,8 +81,8 @@ $.when(preLoaded).done(function (data) {
                             '<a  class="comment" data-type="textarea" data-pk="' + comment.id + '">' +
                             Hyphenator.hyphenate(comment.comment, lang) +
                             '</a>' +
-                            '<a  class="close"  data-value="Are you sure you want to delete comment?" data-pk="' + comment.id + '"><span aria-hidden="true">&times;</span>' +
-                            '</a>'+
+                            '<a  class="close del-comment"  data-value="Are you sure you want to delete comment?" data-pk="' + comment.id + '"><span aria-hidden="true">&times;</span>' +
+                            '</a>' +
                             '</div>' +
                             '</div>' +
                             '</li>'
@@ -97,11 +97,11 @@ $.when(preLoaded).done(function (data) {
                 // Show attachments
                 $('div#files').empty();
                 // if key exists -> show file list
-                if (!$.isEmptyObject(issue.attachments)) {
-                    $.each(issue.attachments, function (index, value) {
-                        var name = (/\/files\/-?\d+\/(.+)/gi).exec(value)[1];
-                        var href = "/file/get/" + issueId + "/" + name;
-                        var deleteHref = "/file/remove/" + issueId + "/" + name;
+                if (!$.isEmptyObject(issue.attachmentPaths)) {
+                    $.each(issue.attachmentPaths, function (index, value) {
+                        var name = value.split("/")[6];
+                        var href = "/issue/" + issueId + "/file/" + name;
+                        var deleteHref = "/issue/" + issueId + "/file/" + name + '/remove';
                         $('div#files').append(
                             '<div class="attachment-table">' +
                             '<a href="' + href + '" target="_blank">' + (name) + '</a>' +
@@ -127,7 +127,7 @@ $.when(preLoaded).done(function (data) {
 
                         stompClient2.send("/app/commenthandlerupdate", {}, JSON.stringify(
                             {
-                                "commentId":commentId,
+                                "commentId": commentId,
                                 "comment": comment,
                                 "issueId": issueId,
                                 "userId": $('#user-session-id').val()
@@ -141,7 +141,7 @@ $.when(preLoaded).done(function (data) {
                 });
 
                 //Remove
-                $('.close').editable({
+                $('.del-comment').editable({
                     send: 'always',
                     savenochange: true,
                     url: function (params) {
@@ -149,7 +149,7 @@ $.when(preLoaded).done(function (data) {
 
                         stompClient3.send("/app/commenthandlerremove", {}, JSON.stringify(
                             {
-                                "commentId":commentId,
+                                "commentId": commentId,
                                 "comment": null,
                                 "issueId": issueId,
                                 "userId": null
@@ -188,7 +188,7 @@ $.when(preLoaded).done(function (data) {
 
             var socket3 = new SockJS('/commenthandlerremove');
 
-            stompClient3 = Stomp.over(socket2);
+            stompClient3 = Stomp.over(socket3);
             stompClient3.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
                 stompClient3.subscribe('/remove', function (calResult) {
@@ -243,17 +243,17 @@ $.when(preLoaded).done(function (data) {
                 '<li style="margin-bottom: 2%;">' +
                 '<div class="chat-body">' +
                 '<div class="header">' +
-                '<small class="pull-right text-muted" id="date_'+ comment.id +'">' +
-                '<i class="fa fa-clock-o fa-fw"></i>' +  moment(comment.date).calendar() +
+                '<small class="pull-right text-muted" id="date_' + comment.id + '">' +
+                '<i class="fa fa-clock-o fa-fw"></i>' + moment(comment.date).calendar() +
                 '</small>' +
                 '<strong class="pull-left primary-font">' + comment.sender.fullName + '</strong>' +
                 '</div>' +
                 '<div style="padding-top: 6%">' +
                 '<a  class="comment" data-type="textarea" data-pk="' + comment.id + '">' +
-                Hyphenator.hyphenate(comment.comment,lang) +
+                Hyphenator.hyphenate(comment.comment, lang) +
                 '</a>' +
                 '<a  class="close"  data-value="Are you sure you want to delete comment?" data-pk="' + comment.id + '"><span aria-hidden="true">&times;</span>' +
-                '</a>'+
+                '</a>' +
                 '</div>' +
                 '</div>' +
                 '</li>'
@@ -282,7 +282,7 @@ $.when(preLoaded).done(function (data) {
 
                     stompClient2.send("/app/commenthandlerupdate", {}, JSON.stringify(
                         {
-                            "commentId":commentId,
+                            "commentId": commentId,
                             "comment": comment,
                             "issueId": issueId,
                             "userId": $('#user-session-id').val()
@@ -304,7 +304,7 @@ $.when(preLoaded).done(function (data) {
 
                     stompClient3.send("/app/commenthandlerremove", {}, JSON.stringify(
                         {
-                            "commentId":commentId,
+                            "commentId": commentId,
                             "comment": null,
                             "issueId": issueId,
                             "userId": null
@@ -317,12 +317,12 @@ $.when(preLoaded).done(function (data) {
         }
 
         function showMessage2(comment) {
-            $('#date_'+comment.id).html('<i class="fa fa-clock-o fa-fw"></i>'+ moment(comment.updateDate).calendar());
-            $('#date_'+comment.id).parent().parent().find('a').attr('data-pk', comment.id)
+            $('#date_' + comment.id).html('<i class="fa fa-clock-o fa-fw"></i>' + moment(comment.updateDate).calendar());
+            $('#date_' + comment.id).parent().parent().find('a').attr('data-pk', comment.id)
         }
 
         function showMessage3(comment) {
-            $('#date_'+comment.id).parent().parent().parent().addClass('non-visible');
+            $('#date_' + comment.id).parent().parent().parent().addClass('non-visible');
         }
 
         //animate scrolling list of messages to the end of panel (last message)
@@ -360,12 +360,12 @@ $.when(preLoaded).done(function (data) {
 
             $('#btn-del-att').unbind('click').on('click', function () {
                 var href = $(this).attr('data-href');
-                $('#modalDeleteAtt').modal('hide');
                 $.ajax({
-                    type: "GET",
+                    type: "POST",
                     url: href,
                     success: function () {
-                       location.reload();
+                        $('#modalDeleteAtt').modal('hide');
+                        location.reload();
                     }
                 });
             });
@@ -406,7 +406,7 @@ $.when(preLoaded).done(function (data) {
             });
             $.ajax({
                 type: "POST",
-                url: '/file/save/' + issueId,
+                url: '/issue/' + issueId + '/save',
                 cache: false,
                 contentType: false,
                 processData: false,

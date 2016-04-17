@@ -139,7 +139,8 @@ public class IssueService implements IIssueService {
 
     @Override
     public void updateComment(String commentId, String comment, String issueId, String senderId) {
-        issueRepository.get(issueId).getComments()
+       Issue issue =  issueRepository.get(issueId);
+        issue.getComments()
                 .stream()
                 .filter(c -> c.getId().equals(commentId))
                 .forEach(c -> {
@@ -149,7 +150,7 @@ public class IssueService implements IIssueService {
                     }
                 });
 
-        issueRepository.update(issueRepository.get(issueId));
+        issueRepository.update(issue);
     }
 
     @Override

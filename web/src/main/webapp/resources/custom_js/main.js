@@ -285,6 +285,7 @@ $(document).ready(function () {
             url: '/project/' + currentProjectId + '/archive',
             success: function () {
                 $('#archive-project-modal').modal('hide');
+                location.reload();
             },
             error: function (data) {
                 var error = data.error;

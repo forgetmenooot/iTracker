@@ -27,31 +27,8 @@ hr {
     margin-top: 0;
 }
 
-.issue-div {
-    border: 1px solid green;
-    border-radius: 4px;
-    padding: 3px;
-    color: white;
-    background-color: #7aba7b;
-}
-
 .row {
     margin-bottom: 0.5%;
-}
-
-.row-flex {
-    display: flex;
-}
-
-.comment-div {
-    background-color: green;
-    color: white;
-    border-radius: 4px;
-    padding: 10px;
-}
-
-.comment {
-    background: #7aba7b;
 }
 
 #comments {

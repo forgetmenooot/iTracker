@@ -14,9 +14,6 @@ public interface IFileService {
 
     void save(List<MultipartFile> file, int issueId);
 
-    /**
-     * Retrieve file names
-     */
     List<String> listAttachments(int issueId);
 
     List<File> getAttachments(int issueId);

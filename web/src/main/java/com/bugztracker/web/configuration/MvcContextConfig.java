@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -56,6 +57,14 @@ public class MvcContextConfig extends WebMvcConfigurerAdapter {
         bean.setMaxBinaryMessageBufferSize(8192);
         bean.setMaxTextMessageBufferSize(8192);
         return bean;
+    }
+
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver cmr = new CommonsMultipartResolver();
+        cmr.setDefaultEncoding("utf-8");
+        cmr.setMaxUploadSize(500000);
+        return cmr;
     }
 
 }

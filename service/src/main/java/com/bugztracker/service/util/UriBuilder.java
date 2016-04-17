@@ -5,17 +5,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-/**
- * Created by oleg
- * Date: 01.11.15
- * Time: 17:46
- */
 @Component
 public final class UriBuilder {
 
     private static final String SLASH = File.separator;
 
-    @Value("${repository.path}")
+    @Value("${service.repository.path}")
     private String rootPath;
 
     private UriBuilder() {

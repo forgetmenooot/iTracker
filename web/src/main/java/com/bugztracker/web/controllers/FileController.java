@@ -1,7 +1,7 @@
-package bugztracker.controller;
+package com.bugztracker.web.controllers;
 
-import bugztracker.exception.service.FileServiceException;
-import bugztracker.service.IFileService;
+import com.bugztracker.service.IFileService;
+import com.bugztracker.service.exception.FileServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class FileController {
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{issueId}/save", method = POST)
     public void save(@RequestParam(value = "files[]") List<MultipartFile> files,
-                     @PathVariable int issueId) {
+                     @PathVariable String issueId) {
 
         fileService.save(files, issueId);
     }
@@ -36,24 +36,26 @@ public class FileController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     @RequestMapping(value = "/{issueId}/files", method = GET)
-    public List<String> list(@PathVariable int issueId) {
+    public List<String> list(@PathVariable String issueId) {
         return fileService.listAttachments(issueId);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    @RequestMapping(value = "/{issueId}/file/{fileName}", method = GET)
-    public FileSystemResource downloadFile(@PathVariable int issueId,
-                                           @PathVariable String fileName) {
-        return new FileSystemResource(fileService.get(issueId, fileName));
+    @RequestMapping(value = "/{issueId}/file/{fileName}.{ext}", method = GET)
+    public FileSystemResource downloadFile(@PathVariable String issueId,
+                                           @PathVariable String fileName,
+                                           @PathVariable("ext") String ext) {
+        return new FileSystemResource(fileService.get(issueId, fileName + "." + ext));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    @RequestMapping(value = "/{issueId}/file{fileName}/remove", method = POST)
-    public void removeFile(@PathVariable int issueId,
-                           @PathVariable String fileName) {
-        fileService.remove(issueId, fileName);
+    @RequestMapping(value = "/{issueId}/file/{fileName}.{ext}/remove", method = POST)
+    public void removeFile(@PathVariable String issueId,
+                           @PathVariable String fileName,
+                           @PathVariable("ext") String ext) {
+        fileService.remove(issueId, fileName+ "." + ext);
     }
 
     @ExceptionHandler(value = {
