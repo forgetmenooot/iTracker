@@ -1,10 +1,7 @@
 package com.bugztracker.commons.bean;
 
-/**
- * Author: Yuliia Vovk
- * Date: 03.04.16
- * Time: 22:45
- */
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class CommentBean {
 
     private String comment;
@@ -42,5 +39,15 @@ public class CommentBean {
 
     public void setCommentId(String commentId) {
         this.commentId = commentId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("comment", comment)
+                .append("issueId", issueId)
+                .append("userId", userId)
+                .append("commentId", commentId)
+                .toString();
     }
 }

@@ -1,7 +1,7 @@
 var dt;
-var projectId = Cookies.get("projectId");
 // Array to track the ids of the details displayed rows
 var detailRows = [];
+var projectId;
 var lang = 'en-us';
 var isChecked;
 var checkedId;
@@ -9,33 +9,15 @@ var status;
 var preLoaded = preLoad();
 var url;
 
-function getUrlParameter(sParam) {
-    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1] === undefined ? true : sParameterName[1];
-        }
-    }
-}
-
 function preLoad() {
-    var href = window.location.href,
-        newUrl = href.substring(0, href.indexOf('?'));
+    projectId = url('2');
+    var status = url('?status');
 
-    var status = getUrlParameter("status");
-    //projectId = getUrlParameter("projectId");
+    url = status == undefined || status == "" ? "/api/projects/" + projectId + "/tickets" : "/api/projects/" + projectId + "/tickets?status=" + status;
 
-    url = status == undefined || status == "" ? "/project/" + projectId + "/issues" : "/project/" + projectId + "/issues?status=" + status;
-    window.history.replaceState({}, '', newUrl);
-
+    var userId = $('#user-session-id').val();
     return $.ajax({
-        url: "/project/check?userId=" + $('#user-session-id').val() + "&projectId=" + projectId
+        url:  "/api/projects/" + projectId + "/check/" + userId
     });
 }
 
@@ -68,7 +50,7 @@ function format(d) {
     '<tr>' +
     '<tr>' +
     '<th>Description:</th>' +
-    '<td>' + Hyphenator.hyphenate(d.description, lang) + '</td>' +
+    '<td>' + Hyphenator.hyphenate(d.description == undefined || d.description == "" ? "No description" : d.description, lang) + '</td>' +
     '</tr>' +
     '</table>';
 }
@@ -106,10 +88,10 @@ function renderTable() {
                     title: "Name",
                     data: "name",
                     render: function nameFormatter(data) {
-                        if (data.length < 10) {
+                        if (data.length < 7) {
                             return data;
                         }
-                        var desc = data.substring(0, 10);
+                        var desc = data.substring(0, 7);
                         return desc.concat('...');
                     },
                     class: 'text-center'
@@ -198,13 +180,18 @@ function renderTable() {
                 {
                     title: "Description",
                     data: "description",
+                    render: function descFormatter(data) {
+                        if (data == null) {
+                            return "-";
+                        }
+                        return data;
+                    },
                     class: 'text-center',
                     visible: false
                 }
             ],
             paging: true,
             "pagingType": "simple_numbers",
-            //scrollY: 385,
             "initComplete": function () {
                 cssDocument();
             }
@@ -221,7 +208,7 @@ function cssDocument() {
 
     //$('div.dataTables_filter').parent().parent().children().first().append('<h3><span class="label label-default">' + dt.data()[0].project.name + '</span></h3>');
 
-    if(preLoaded) {
+    if(preLoaded.responseText === 'true') {
         $('<div class="btn-group" role="group" style="margin-left: 2%">' +
             '<button type="button" class="btn btn-primary inline" id="btn-is-edit" data-toggle="modal"  data-target="#issue-modal">Create</button>' +
             '<button type="button" class="btn btn-primary non-visible" data-toggle="modal"  id="btn-is-delete" data-target="#issue-modal-delete">Delete</button>' +
@@ -231,7 +218,7 @@ function cssDocument() {
             if (this.textContent == 'Edit') {
                 $('#modal-name-issue').text("Edit");
                 $.ajax({
-                    url: "/issue/" + checkedId,
+                    url: "/api/projects/" + projectId + "/tickets/" + checkedId,
                     success: function (data) {
                         $('#is-name').val(data.name);
                         $('#is-category').val(data.category);
@@ -259,11 +246,7 @@ $.when(preLoaded).done(function () {
 
     Hyphenator.run();
 
-    if (projectId == undefined || projectId == "") {
-        alert('Project is not defined! Please, search for project to complete request! ')
-    } else {
-        renderTable();
-    }
+    renderTable();
 
     $('#issues-table').find('tbody').on('click', 'tr td.details-control', function () {
         var tr = $(this).closest('tr');
@@ -286,6 +269,18 @@ $.when(preLoaded).done(function () {
                 detailRows.push(tr.attr('id'));
             }
         }
+    });
+
+    document.oncontextmenu = function () {
+        return false;
+    };
+
+    $(document).mousedown(function (e) {
+        if (e.button == 2 && $(e.target).is('td') && e.target.className != "dataTables_empty") {
+            window.location.href = '/projects/' + projectId + '/tickets/' + e.target.parentElement.id;
+            return false;
+        }
+        return true;
     });
 
     $('#issues-table').find('tbody').on('click', '.text-center', function () {
@@ -314,7 +309,7 @@ $.when(preLoaded).done(function () {
     $('#btn-delete-yes').on('click', function() {
         $.ajax({
             type: "DELETE",
-            url: "/issue/" + checkedId,
+            url: "/api/projects/" + projectId + "/tickets/" + checkedId,
             success: function() {
                 location.reload();
             }

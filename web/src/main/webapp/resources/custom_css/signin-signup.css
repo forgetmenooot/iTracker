@@ -4,3 +4,27 @@
     margin-top: 8%;
     text-align: center;
 }
+
+body.login {
+    background: url('/resources/images/macbook-5.jpg') center center no-repeat fixed;
+    opacity: 0.9;
+    background-size: cover;
+}
+
+body.register {
+    background: url('/resources/images/macbook-6.jpg') center center no-repeat fixed;
+    opacity: 0.9;
+    background-size: cover;
+}
+
+body.result {
+    background: url('/resources/images/macbook-7.jpg') center center no-repeat fixed;
+    opacity: 0.9;
+    background-size: cover;
+}
+
+body.notfound {
+    background: url('/resources/images/404.png') center center no-repeat fixed;
+    opacity: 0.9;
+    background-size: cover;
+}

@@ -13,16 +13,6 @@ tr.details td.details-control {
     cursor: pointer;
 }
 
-/*.table {*/
-    /*background-color: #337ab7;*/
-    /*color: #fff;*/
-/*}*/
-
-/*table.dataTable tbody tr {*/
-    /*background-color: #03A9F4 !important;*/
-    /*color: #fff;*/
-/*}*/
-
 table.dataTable tbody tr.selected {
     background-color: #337ab7 !important;
     color: #fff;

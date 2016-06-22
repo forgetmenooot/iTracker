@@ -10,11 +10,6 @@ import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.Set;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
 @Component
 public class CommonsEntityValidator implements ICommonsValidator {
 
@@ -22,6 +17,7 @@ public class CommonsEntityValidator implements ICommonsValidator {
     @Qualifier("entityValidator")
     private Validator validator;
 
+    @Override
     public void validate(Object obj) {
         Set<ConstraintViolation<Object>> constraintViolations = validator.validate(obj);
         if (!constraintViolations.isEmpty()) {

@@ -1,7 +1,6 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-
 <t:template>
     <jsp:attribute name="header">
         <link href="<c:url value="/resources/custom_css/signin-signup.css"/>" rel="stylesheet"/>
@@ -12,7 +11,7 @@
     </jsp:attribute>
 
     <jsp:body>
-        <body style="background: url('/resources/images/macbook-6.jpg') center center no-repeat fixed; opacity: 0.9; background-size: cover;">
+        <body class="register">
         <div class="col-md-4">
             <div class="alert non-visible alert-danger-position" id="alert-message"
                  role="alert"></div>
@@ -21,7 +20,7 @@
             <div class="col-md-4">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                        <h2 class="panel-title">Sign up</h2>
+                        <h2 class="panel-title">Register</h2>
                     </div>
                     <div class="panel-body">
                         <form role="form">
@@ -39,7 +38,7 @@
                                     <label class="control-label" for="password">Password:</label>
                                     <input class="form-control" placeholder="Password" id="password" type="password">
                                 </div>
-                                <button type="submit" class="btn btn-lg btn-primary btn-block" id="sign_up_btn">Sign up
+                                <button type="submit" class="btn btn-lg btn-primary btn-block" id="sign_up_btn">Register
                                 </button>
                             </fieldset>
                         </form>
@@ -50,6 +49,10 @@
                 <h3>Join iTracker and simplify development as never before</h3>
             </div>
         </div>
+        </body>
+        <footer class="footer">
+            <p style="color: white">2016, iTracker.</p>
+        </footer>
     </jsp:body>
 
 </t:template>

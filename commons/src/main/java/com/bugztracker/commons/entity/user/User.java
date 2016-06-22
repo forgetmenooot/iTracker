@@ -1,9 +1,9 @@
 package com.bugztracker.commons.entity.user;
 
 import com.bugztracker.commons.entity.project.Project;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -11,22 +11,18 @@ import org.springframework.data.annotation.Transient;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
 
     @Id
     private String id;
 
     @NotBlank(message = "Full name is required! ")
-    @Size(max = 100, message = "Please, shorten your full name to 100 symbols! ")
+    @Size(max = 50, message = "Please, shorten your full name to 50 symbols! ")
     private String fullName;
 
     @NotBlank(message = "Password is required! ")
@@ -34,7 +30,7 @@ public class User implements Serializable {
     private String password;
 
     @NotBlank(message = "Email is required! ")
-    @Size(max = 50, message = "Please, use email 50 symbols length! ")
+    @Size(max = 50, message = "Email must be less than 50 symbols length! ")
     @Email(message = "Email is not valid! ")
     private String email;
 
@@ -45,7 +41,7 @@ public class User implements Serializable {
 
     @Transient
     private boolean isRemember;
-    private List<Project> projects;
+    private List<Project> projects = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -137,19 +133,47 @@ public class User implements Serializable {
 
         return new EqualsBuilder()
                 .append(isActive, user.isActive)
+                .append(isRemember, user.isRemember)
+                .append(id, user.id)
                 .append(fullName, user.fullName)
                 .append(password, user.password)
                 .append(email, user.email)
+                .append(dateExpired, user.dateExpired)
+                .append(dueRegisterDate, user.dueRegisterDate)
+                .append(registrationToken, user.registrationToken)
+                .append(projects, user.projects)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .append(id)
                 .append(fullName)
                 .append(password)
                 .append(email)
+                .append(dateExpired)
+                .append(dueRegisterDate)
                 .append(isActive)
+                .append(registrationToken)
+                .append(isRemember)
+                .append(projects)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("fullName", fullName)
+                .append("password", password)
+                .append("email", email)
+                .append("dateExpired", dateExpired)
+                .append("dueRegisterDate", dueRegisterDate)
+                .append("isActive", isActive)
+                .append("registrationToken", registrationToken)
+                .append("isRemember", isRemember)
+                .append("projects", projects)
+                .toString();
     }
 }

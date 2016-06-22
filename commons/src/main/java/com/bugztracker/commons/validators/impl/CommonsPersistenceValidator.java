@@ -12,11 +12,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import java.util.Set;
 
-/**
- * Created by Oleh_Osyka
- * Date: 13.02.2016
- * Time: 18:18
- */
 @Component
 public class CommonsPersistenceValidator implements ICommonsValidator {
 

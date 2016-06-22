@@ -13,15 +13,10 @@ import java.util.regex.Pattern;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-/**
- * Created by Oleh_Osyka
- * Date: 14.02.2016
- * Time: 17:11
- */
 @Repository
 public class ProjectRepository extends BaseDao<Project> implements IProjectRepository {
 
-    public static final String COLLECTION_NAME = "Projects";
+    private static final String COLLECTION_NAME = "Projects";
 
     protected ProjectRepository() {
         super(COLLECTION_NAME, Project.class);

@@ -7,11 +7,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-/**
- * Author: Yuliia Vovk
- * Date: 03.04.16
- * Time: 11:02
- */
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
@@ -24,7 +19,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/commenthandler","/commenthandlerupdate", "/commenthandlerremove")
+        registry.addEndpoint("/commenthandleradd","/commenthandlerupdate", "/commenthandlerremove")
                 .withSockJS()
                 .setInterceptors(new HttpSessionHandshakeInterceptor())
                 .setSessionCookieNeeded(true);

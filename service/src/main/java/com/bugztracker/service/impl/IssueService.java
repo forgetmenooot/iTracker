@@ -1,6 +1,5 @@
 package com.bugztracker.service.impl;
 
-import com.bugztracker.commons.bean.StatusPoint;
 import com.bugztracker.commons.entity.issue.Comment;
 import com.bugztracker.commons.entity.issue.Issue;
 import com.bugztracker.commons.entity.issue.Status;
@@ -16,15 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Author: Yuliia Vovk
- * Date: 21.02.16
- * Time: 12:43
- */
 @Service
 public class IssueService implements IIssueService {
 
@@ -54,31 +47,24 @@ public class IssueService implements IIssueService {
     }
 
     @Override
-    public List<Issue> getByProjectAndAssignedUser(String projectName, String userEmail) {
-        return issueRepository.getByProjectAndAssignedUser(projectName, userEmail);
-    }
-
-    @Override
     public List<Issue> getByProjectId(String projectId) {
         return issueRepository.getByProjectId(projectId);
     }
 
     @Override
-    public List<StatusPoint> getStatusPointInRange(String projectName, Date from, Date to) {
-        DateTime dateTimeFrom = new DateTime(from);
-        DateTime dateTimeTo = new DateTime(to);
-        List<StatusPoint> statusPoints = new ArrayList<>();
+    public void update(Issue issue) {
+        User assignee = userRepository.get(issue.getAssignee().getId());
+        Issue issue1 = issueRepository.get(issue.getId());
 
-        while (dateTimeFrom.isBefore(dateTimeTo)) {
-            StatusPoint statusPoint = new StatusPoint(
-                    issueRepository.getCountByDateAndOpenedStatus(projectName, dateTimeFrom.toDate()),
-                    issueRepository.getCountByDateAndClosedStatus(projectName, dateTimeTo.toDate()),
-                    dateTimeFrom.toDate());
-            statusPoints.add(statusPoint);
-            dateTimeFrom = dateTimeFrom.plusDays(1);
-        }
-
-        return statusPoints;
+        issue1.setLastUpdateDate(DateTime.now().toDate());
+        issue1.setAssignee(assignee);
+        issue1.setCategory(issue.getCategory());
+        issue1.setPriority(issue.getPriority());
+        issue1.setStatus(issue.getStatus());
+        issue1.setVersion(issue.getVersion());
+        issue1.setDescription(issue.getDescription());
+        issue.setName(issue.getName());
+        issueRepository.update(issue1);
     }
 
     @Override
@@ -86,29 +72,14 @@ public class IssueService implements IIssueService {
         User creator = userRepository.get(id);
         User assignee = userRepository.get(issue.getAssignee().getId());
         Project project = projectRepository.get(issue.getProject().getId());
-
-        if (issue.getId() == null) {
-            issue.setCreationDate(DateTime.now().toDate());
-            issue.setAttachmentPaths(new ArrayList<>());
-            issue.setCreator(creator);
-            issue.setStatus(Status.OPENED);
-            issue.setAssignee(assignee);
-            issue.setProject(project);
-            issue.setComments(new ArrayList<>());
-            issueRepository.add(issue);
-        } else {
-            Issue issue1 = issueRepository.get(issue.getId());
-
-            issue1.setLastUpdateDate(DateTime.now().toDate());
-            issue1.setAssignee(assignee);
-            issue1.setCategory(issue.getCategory());
-            issue1.setPriority(issue.getPriority());
-            issue1.setStatus(issue.getStatus());
-            issue1.setVersion(issue.getVersion());
-            issue1.setDescription(issue.getDescription());
-            issue1.setName(issue.getName());
-            issueRepository.update(issue1);
-        }
+        issue.setCreationDate(DateTime.now().toDate());
+        issue.setAttachmentPaths(new ArrayList<>());
+        issue.setCreator(creator);
+        issue.setStatus(Status.OPENED);
+        issue.setAssignee(assignee);
+        issue.setProject(project);
+        issue.setComments(new ArrayList<>());
+        issueRepository.add(issue);
     }
 
     @Override
@@ -139,7 +110,7 @@ public class IssueService implements IIssueService {
 
     @Override
     public void updateComment(String commentId, String comment, String issueId, String senderId) {
-       Issue issue =  issueRepository.get(issueId);
+        Issue issue = issueRepository.get(issueId);
         issue.getComments()
                 .stream()
                 .filter(c -> c.getId().equals(commentId))

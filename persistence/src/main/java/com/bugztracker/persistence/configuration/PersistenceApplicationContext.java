@@ -10,11 +10,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-/**
- * Created by Oleh_Osyka
- * Date: 13.02.2016
- * Time: 13:12
- */
 @Configuration
 @ComponentScan(basePackages = "com.bugztracker.persistence")
 public class PersistenceApplicationContext {

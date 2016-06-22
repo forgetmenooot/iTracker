@@ -1,72 +1,76 @@
 package com.bugztracker.web.controllers;
 
 import com.bugztracker.service.IFileService;
-import com.bugztracker.service.exception.FileServiceException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @Controller
-@RequestMapping("/issue")
+@RequestMapping("/api")
 public class FileController {
 
     @Autowired
     private IFileService fileService;
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{issueId}/save", method = POST)
-    public void save(@RequestParam(value = "files[]") List<MultipartFile> files,
-                     @PathVariable String issueId) {
+    @RequestMapping(value = "/projects/{pid}/tickets/{iid}/files", method = POST)
+    public void save(@RequestParam(value = "files[]") List<MultipartFile> files, @PathVariable String pid,
+                     @PathVariable String iid) {
 
-        fileService.save(files, issueId);
+        fileService.save(files, iid);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    @RequestMapping(value = "/{issueId}/files", method = GET)
-    public List<String> list(@PathVariable String issueId) {
-        return fileService.listAttachments(issueId);
+    @RequestMapping(value = "/projects/{pid}/tickets/{iid}/files", method = GET)
+    public List<String> list(@PathVariable String pid, @PathVariable String iid) {
+        return fileService.listAttachments(iid);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    @RequestMapping(value = "/{issueId}/file/{fileName}.{ext}", method = GET)
-    public FileSystemResource downloadFile(@PathVariable String issueId,
+    @RequestMapping(value = "/projects/{pid}/tickets/{iid}/files/{fileName}.{ext}", method = GET)
+    public FileSystemResource downloadFile(@PathVariable String pid, @PathVariable String iid,
                                            @PathVariable String fileName,
                                            @PathVariable("ext") String ext) {
-        return new FileSystemResource(fileService.get(issueId, fileName + "." + ext));
+        return new FileSystemResource(fileService.get(iid, fileName + "." + ext));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    @RequestMapping(value = "/{issueId}/file/{fileName}.{ext}/remove", method = POST)
-    public void removeFile(@PathVariable String issueId,
+    @RequestMapping(value = "/projects/{pid}/tickets/{iid}/files/{fileName}.{ext}", method = DELETE)
+    public void removeFile(@PathVariable String pid,
+                           @PathVariable String iid,
                            @PathVariable String fileName,
                            @PathVariable("ext") String ext) {
-        fileService.remove(issueId, fileName+ "." + ext);
+        fileService.remove(iid, fileName+ "." + ext);
     }
 
-    @ExceptionHandler(value = {
-            MultipartException.class,
-            FileServiceException.class})
-    @ResponseBody
-    private ResponseEntity uploadErrorHandler(Throwable e) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
-
-        return new ResponseEntity<Object>(errors, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(value ={RuntimeException.class, Exception.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView handleError(HttpServletRequest req, Exception exception) {
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("exception", exception);
+        mav.addObject("url", req.getRequestURL());
+        mav.setViewName("error");
+        return mav;
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleResourceNotFoundException() {
+        return "not-found";
+    }
+
 
 }

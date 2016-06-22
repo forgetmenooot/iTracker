@@ -4,24 +4,17 @@
 <t:template>
     <jsp:attribute name="header">
         <link href="<c:url value="/resources/custom_css/dashboard.css"/>" rel="stylesheet"/>
-        <%--<link href="<c:url value="/resources/css/dataTables.foundation.min.css"/>" rel="stylesheet"/>--%>
         <link href="<c:url value="/resources/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"/>
-        <%--<link href="<c:url value="/resources/css/dataTables.jqueryui.min.css"/>" rel="stylesheet"/>--%>
-        <%--<link href="<c:url value="/resources/css/jquery.dataTables.min.css"/>" rel="stylesheet"/>--%>
     </jsp:attribute>
     <jsp:attribute name="footer">
-        <%--<script src="<c:url value="/resources/js/dataTables.foundation.min.js"/>"></script>--%>
-        <%--<script src="<c:url value="/resources/js/dataTables.jqueryui.min.js"/>"></script>--%>
         <script src="<c:url value="/resources/js/jquery.dataTables.min.js"/>"></script>
         <script src="<c:url value="/resources/js/dataTables.bootstrap.min.js"/>"></script>
-        <script src="<c:url value="/resources/js/Hyphenator.js"/>"></script>
-        <script src="<c:url value="/resources/js/patterns/en-us.js"/>" type="text/javascript"></script>
         <script src="<c:url value="/resources/custom_js/issues.js"/>"></script>
         <script src="<c:url value="/resources/custom_js/create-issue.js"/>"></script>
     </jsp:attribute>
 
     <jsp:body>
-        <t:navbar-new/>
+        <t:navbar/>
 
         <div style="padding: 2%">
             <div class="panel panel-primary">
@@ -35,7 +28,7 @@
                            width="100%"></table>
                 </div>
             </div>
-            <t:create-issue/>
+            <t:create_issue/>
         </div>
 
         <div class="modal fade" id="issue-modal-delete" tabindex="-1" role="dialog">
@@ -48,7 +41,7 @@
                         <h4 class="modal-title">Delete</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to delete selected issue?</p>
+                        <p>Are you sure you want to delete selected ticket?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" id="btn-delete-yes">Delete</button>
@@ -58,6 +51,9 @@
                 </div>
             </div>
         </div>
+        <footer class="footer">
+            <p>2016, iTracker.</p>
+        </footer>
     </jsp:body>
 </t:template>
 

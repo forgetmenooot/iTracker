@@ -1,8 +1,8 @@
 package com.bugztracker.commons.entity.project;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 
@@ -10,19 +10,14 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Project implements Serializable {
 
     @Id
     private String id;
 
     @NotBlank(message = "Name is required! ")
-    @Size(max = 300, message = "Please, shorten the name of project. Not more than 300 symbols is possible! ")
+    @Size(max = 50, message = "Please, shorten the name of project. Not more than 50 symbols is possible! ")
     private String name;
     private Date date;
     private String description;
@@ -86,5 +81,16 @@ public class Project implements Serializable {
         return new HashCodeBuilder(17, 37)
                 .append(id)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("date", date)
+                .append("description", description)
+                .append("isArchived", isArchived)
+                .toString();
     }
 }

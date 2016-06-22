@@ -3,11 +3,6 @@ package com.bugztracker.web.helpers;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Author: Yuliia Vovk
- * Date: 19.02.16
- * Time: 16:40
- */
 public class Response {
 
     private Map<String, Object> response;

@@ -1,14 +1,10 @@
 package com.bugztracker.web.controllers;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
 @Controller
 public class PageController {
 
@@ -17,34 +13,29 @@ public class PageController {
         return "signin";
     }
 
-    @RequestMapping(value = "/signin", method = RequestMethod.GET)
+    @RequestMapping(value = "/auth/login", method = RequestMethod.GET)
     public String getSignInPageTwo() {
         return "signin";
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.GET)
+    @RequestMapping(value = "/auth/register", method = RequestMethod.GET)
     public String getSignUpPage() {
         return "signup";
     }
 
-    @RequestMapping(value = "/project/issues", method = RequestMethod.GET)
-    public String getProjectPage() {
+    @RequestMapping(value = "/projects/{id}/tickets", method = RequestMethod.GET)
+    public String getProjectPage(@PathVariable String id) {
         return "issues";
     }
 
-    @RequestMapping(value = "/issue", method = RequestMethod.GET)
-    public String getIssueDetailPage() {
-        return "issue";
-    }
-
-    @RequestMapping(value = "/main", method = RequestMethod.GET)
+    @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public String getMainPage() {
-        return "main";
+        return "dashboard";
     }
 
-    @RequestMapping(value = "/project/issue", method = RequestMethod.GET)
-    public String getNewIssuePage() {
-        return "issue_new";
+    @RequestMapping(value = "/projects/{pid}/tickets/{iid}", method = RequestMethod.GET)
+    public String getNewIssuePage(@PathVariable String pid, @PathVariable String iid) {
+        return "issue";
     }
 
 }

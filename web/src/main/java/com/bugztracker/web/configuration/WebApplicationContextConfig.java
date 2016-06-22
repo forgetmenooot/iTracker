@@ -7,11 +7,6 @@ import org.springframework.stereotype.Controller;
 
 import static org.springframework.context.annotation.FilterType.ANNOTATION;
 
-/**
- * Author: Yuliia Vovk
- * Date: 20.02.16
- * Time: 10:27
- */
 @Configuration
 @ComponentScan(basePackages = {
         "com.bugztracker.web",

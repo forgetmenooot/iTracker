@@ -15,18 +15,13 @@ import java.net.URI;
 import static org.apache.logging.log4j.Level.*;
 import static org.apache.logging.log4j.core.Filter.Result.*;
 
-/**
- * Created by Oleh_Osyka
- * Date: 15.02.2016
- * Time: 11:07
- */
 @Plugin(name = "CustomConfigurationFactory", category = ConfigurationFactory.CATEGORY)
 @Order(1)
 public class Log4j2Config extends ConfigurationFactory {
 
     static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
         builder.setConfigurationName(name);
-        builder.setStatusLevel(ERROR);
+        builder.setStatusLevel(INFO);
         builder.add(builder.newFilter("ThresholdFilter", ACCEPT, NEUTRAL).
                 addAttribute("level", INFO));
 
@@ -38,10 +33,10 @@ public class Log4j2Config extends ConfigurationFactory {
                 addAttribute("marker", "FLOW"));
 
         builder.add(appenderBuilder);
-        builder.add(builder.newLogger("org.apache.logging.log4j", DEBUG).
+        builder.add(builder.newLogger("org.apache.logging.log4j", INFO).
                 add(builder.newAppenderRef("Stdout")).
                 addAttribute("additivity", false));
-        builder.add(builder.newRootLogger(ERROR).
+        builder.add(builder.newRootLogger(INFO).
                 add(builder.newAppenderRef("Stdout")));
         return builder.build();
     }

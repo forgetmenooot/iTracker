@@ -1,85 +1,103 @@
 package com.bugztracker.service.impl;
 
 import com.bugztracker.commons.entity.user.User;
-import com.bugztracker.persistence.dao.IProjectRepository;
 import com.bugztracker.persistence.dao.IUserRepository;
+import com.bugztracker.persistence.exception.DBException;
 import com.bugztracker.service.IUserService;
+import com.bugztracker.service.exception.ServiceException;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Author: Yuliia Vovk
- * Date: 19.02.16
- * Time: 16:27
- */
 @Service
 public class UserService implements IUserService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private IUserRepository userRepository;
 
-    @Autowired
-    private IProjectRepository projectRepository;
-
     @Override
     public Optional<User> find(String email) {
-        return Optional.ofNullable(userRepository.find(email));
-    }
-
-    @Override
-    public void update(User user) {
         try {
-            userRepository.update(user);
-        } catch (ConstraintViolationException cve) {
-            LOG.error("Updating user with id = %s failed, %s", user.getId(), cve.getMessage());
+            return Optional.ofNullable(userRepository.find(email));
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
         }
     }
 
     @Override
-    public void create(User user) {
+    public Optional<User> update(User user) {
+        try {
+            userRepository.update(user);
+            return get(user.getId());
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
+    }
+
+    @Override
+    public Optional<User> create(User user) {
         try {
             userRepository.add(user);
-        } catch (ConstraintViolationException cve) {
-            LOG.error("Creating user with email = %s failed, %s", user.getEmail(), cve.getMessage());
+            return get(user.getId());
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
         }
     }
 
     @Override
     public Optional<User> getByRegistrationToken(String token) {
-        return Optional.ofNullable(userRepository.findUserByRegistrationToken(token));
+        try {
+            return Optional.ofNullable(userRepository.findUserByRegistrationToken(token));
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 
     @Override
-    public List<User> getByProject(String projectId) {
-        return userRepository.getByProjectId(projectId);
+    public List<User> getByProjectId(String projectId) {
+        try {
+            return userRepository.getByProjectId(projectId);
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 
     @Override
-    public List<User> getByProjectAndQuery(String projectId, String query) {
-       return userRepository.findUsersByProjectAndQuery(projectId, query);
+    public List<User> getByProjectIdAndName(String projectId, String query) {
+        try {
+            return userRepository.findUsersByProjectAndQuery(projectId, query);
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 
     @Override
-    public List<User> findAllUserNames(String query) {
-        return userRepository.findByFullName(query);
+    public List<User> findAllUsersByName(String query) {
+        try {
+            return userRepository.findByFullName(query);
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 
     @Override
     public void removeUsersWithRegistrationDatePassed() {
-        userRepository.removeUsersWithRegistrationDatePassed(DateTime.now().toDate());
+        try {
+            userRepository.removeUsersWithRegistrationDatePassed(DateTime.now().toDate());
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 
     @Override
     public Optional<User> get(String id) {
-        return Optional.ofNullable(userRepository.get(id));
+        try {
+            return Optional.ofNullable(userRepository.get(id));
+        } catch (DBException exc) {
+            throw new ServiceException(exc);
+        }
     }
 }

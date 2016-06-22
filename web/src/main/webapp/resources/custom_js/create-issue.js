@@ -1,4 +1,5 @@
 var checkedId;
+var projectId = Cookies.get("projectId");
 
 $(document).ready(function () {
 
@@ -49,10 +50,10 @@ $(document).ready(function () {
                 "category": category,
                 "assignee": assignee.id == undefined ? null : assignee
             };
-
+            var type = checkedId == undefined ? 'POST' : 'PUT';
             $.ajax({
-                type: "PUT",
-                url: '/issue',
+                type: type,
+                url: '/api/projects/' + projectId + '/tickets',
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json"
@@ -74,8 +75,8 @@ $(document).ready(function () {
     $('#is-assignee').typeahead({
         source: function (query, process) {
             return $.ajax({
-                url: "/project/" + projectId + "/participants",
-                data: {"query": query},
+                url: "/api/projects/" + projectId + "/participants",
+                data: {"name": query},
                 dataType: 'json',
                 success: function (result) {
 

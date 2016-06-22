@@ -4,8 +4,10 @@ import com.bugztracker.commons.entity.user.User;
 import com.bugztracker.commons.validators.ICommonsValidator;
 import com.bugztracker.service.IEmailService;
 import com.bugztracker.service.IUserService;
+import com.bugztracker.web.exception.ValidationException;
 import com.bugztracker.web.helpers.Response;
 import com.bugztracker.web.helpers.UserManageHelper;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +19,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.bugztracker.web.Constants.*;
-
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
 @Controller
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -51,13 +47,13 @@ public class UserController {
     @Value("${web.session.time:30}")
     private int sessionTime;
 
-    @RequestMapping(value = LOGIN_PATH, method = RequestMethod.POST)
+    @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody User credentials,
                                 HttpSession session) {
         Optional<User> user = userService.find(credentials.getEmail());
         Response response = manageHelper.login(user, credentials);
 
-        if (response.contains(VIEW_ERROR)) {
+        if (response.contains("error")) {
             return new ResponseEntity<Object>(response.getResponse(), HttpStatus.UNAUTHORIZED);
         }
 
@@ -68,22 +64,23 @@ public class UserController {
             userService.update(userToLogin);
         }
 
-        session.setAttribute(USER_FULL_NAME, userToLogin.getFullName());
-        session.setAttribute(USER_ID, userToLogin.getId());
-        return new ResponseEntity<Object>(response.getResponse(), HttpStatus.OK);
+        session.setAttribute("fullName", userToLogin.getFullName());
+        session.setAttribute("userId", userToLogin.getId());
+
+        return new ResponseEntity<Object>(response.getResponse(), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = REGISTER_PATH, method = RequestMethod.POST)
+    @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
     public ResponseEntity register(@RequestBody User newUser) {
         userValidator.validate(newUser);
         Optional<User> user = userService.find(newUser.getEmail());
         Response response = manageHelper.register(user, newUser, isRegisterToken, sessionTime);
 
-        if (response.contains(VIEW_ERROR)) {
-            return new ResponseEntity<Object>(response.getResponse(), HttpStatus.BAD_REQUEST);
+        if (response.contains("error")) {
+            return new ResponseEntity<Object>(response.getResponse(), HttpStatus.CONFLICT);
         }
 
-        User userToRegister = (User) response.get(USER_TO_REGISTER);
+        User userToRegister = (User) response.get("user");
         userService.create(userToRegister);
 
         if (isRegisterToken) {
@@ -93,55 +90,71 @@ public class UserController {
         return new ResponseEntity<Object>(response.getResponse(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = LOGOUT_PATH, method = RequestMethod.GET)
+    @RequestMapping(value ="/auth/logout", method = RequestMethod.GET)
     public String logout(HttpSession session) {
-        String userId = (String) session.getAttribute(USER_ID);
+        String userId = (String) session.getAttribute("userId");
 
-        User user = userService.get(userId).get();
-        user.setDateExpired(null);
-        userService.update(user);
+        Optional<User> user = userService.get(userId);
+        if(user.isPresent()) {
+            user.get().setDateExpired(null);
+            userService.update(user.get());
+        }
 
         session.invalidate();
-
         return "redirect:/";
+    }
+
+    @RequestMapping(value = "/auth/activate/{token}", method = RequestMethod.GET)
+    public ModelAndView activateAccount(@PathVariable String token) {
+        Optional<User> userByToken = userService.getByRegistrationToken(token);
+        Response response = manageHelper.activateAccount(userByToken);
+
+        if (response.contains("user")) {
+            userService.update((User) response.get("user"));
+        }
+
+        return new ModelAndView("result", response.getResponse());
+    }
+
+    @RequestMapping(value = "/projects/{id}/participants", method = RequestMethod.GET)
+    public ResponseEntity getParticipantsOfProject(@PathVariable String id) {
+        List<User> userList = userService.getByProjectId(id);
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{id}/participants", method = RequestMethod.GET, params = {"name"})
+    public ResponseEntity getParticipantsOfProjectByName(@PathVariable String id, @RequestParam String name) {
+        List<User> userList = userService.getByProjectIdAndName(id, name);
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    public ResponseEntity getUsers(@RequestParam String name) {
+        List<User> userNames = userService.findAllUsersByName(name);
+        return new ResponseEntity<Object>(userNames, HttpStatus.OK);
     }
 
     @ExceptionHandler
     public ResponseEntity handleException(ValidationException exc) {
         Response response = new Response();
-        response.add(VIEW_ERROR, exc.getMessage());
+        response.add("error", exc.getMessage());
         return new ResponseEntity<Object>(response.getResponse(), HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = ACTIVATION_PATH, method = RequestMethod.GET, params = {ACTIVATION_TOKEN})
-    public ModelAndView activateAccount(@RequestParam(ACTIVATION_TOKEN) String registrationToken) {
-        Optional<User> userByToken = userService.getByRegistrationToken(registrationToken);
-        Response response = manageHelper.activateAccount(userByToken);
-
-        if (response.contains(USER_TO_ACTIVATE)) {
-            userService.update((User) response.get(USER_TO_ACTIVATE));
-        }
-
-        return  new ModelAndView(RESULT_PATH, response.getResponse());
+    @ExceptionHandler(value ={RuntimeException.class, Exception.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ModelAndView handleError(HttpServletRequest req, Exception exception) {
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("exception", exception.getMessage());
+        mav.addObject("url", req.getRequestURL());
+        mav.setViewName("error");
+        return mav;
     }
 
-    @RequestMapping(value = "/project/{projectId}/participants", method = RequestMethod.GET)
-    public ResponseEntity getParticipantsOfProject(@PathVariable String projectId) {
-        List<User> userList = userService.getByProject(projectId);
-        return new ResponseEntity<>(userList, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/project/{projectId}/participants", method = RequestMethod.GET, params = {"query"})
-    public ResponseEntity getParticipantsOfProject(@PathVariable String projectId, @RequestParam String query) {
-        List<User> userList = userService.getByProjectAndQuery(projectId, query);
-        return new ResponseEntity<>(userList, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = USERS_PATH, method = RequestMethod.GET)
-    public ResponseEntity getUsers(@RequestParam String query) {
-        List<User> userNames = userService.findAllUserNames(query);
-
-        return new ResponseEntity<Object>(userNames, HttpStatus.OK);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleResourceNotFoundException() {
+        return "not-found";
     }
 
 }

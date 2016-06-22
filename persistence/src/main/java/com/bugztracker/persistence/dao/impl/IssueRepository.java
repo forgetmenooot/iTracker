@@ -1,6 +1,7 @@
 package com.bugztracker.persistence.dao.impl;
 
 import com.bugztracker.commons.entity.issue.Issue;
+import com.bugztracker.commons.entity.issue.Status;
 import com.bugztracker.persistence.dao.BaseDao;
 import com.bugztracker.persistence.dao.IIssueRepository;
 import org.bson.types.ObjectId;
@@ -14,15 +15,10 @@ import java.util.List;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-/**
- * Created by Oleh_Osyka
- * Date: 14.02.2016
- * Time: 17:43
- */
 @Repository
 public class IssueRepository extends BaseDao<Issue> implements IIssueRepository {
 
-    public static final String COLLECTION_NAME = "Issues";
+    private static final String COLLECTION_NAME = "Issues";
 
     protected IssueRepository() {
         super(COLLECTION_NAME, Issue.class);
@@ -57,11 +53,11 @@ public class IssueRepository extends BaseDao<Issue> implements IIssueRepository 
 
     @Override
     public int getCountByDateAndOpenedStatus(String projectName, Date date) {
-        return findAll(query(where("projectName").is(projectName).and("status").is("OPENED").and("creationDate").is(date))).size();
+        return findAll(query(where("projectName").is(projectName).and("status").is(Status.OPENED).and("creationDate").is(date))).size();
     }
 
     @Override
     public int getCountByDateAndClosedStatus(String projectName, Date date) {
-        return findAll(query(where("projectName").is(projectName).and("status").is("CLOSED").and("creationDate").is(date))).size();
+        return findAll(query(where("projectName").is(projectName).and("status").is(Status.CLOSED).and("creationDate").is(date))).size();
     }
 }

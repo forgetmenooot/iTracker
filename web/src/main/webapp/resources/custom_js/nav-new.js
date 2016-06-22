@@ -24,7 +24,7 @@ $(document).ready(function () {
             var currentProjectId = currentProjectIdHref.substr(1, currentProjectIdHref.length);
             $('#modal-name-project').text("Edit");
             $.ajax({
-                url: '/project/' + currentProjectId + '/participants',
+                url: '/api/projects/' + currentProjectId + '/participants',
                 success: function (data) {
                     $.each(data, function (i, item) {
                         $('#pr-users-list').append(
@@ -34,7 +34,7 @@ $(document).ready(function () {
                         );
                     });
                     $('#pr-id').val(currentProjectId);
-                    $('#pr-name').val($('li.active').find('a').text());
+                    $('#pr-name').val($('ul li.active').find('a').text());
                     $('#pr-desc').val($('#' + currentProjectId + '-pr-description').text());
                 }
             });
@@ -44,8 +44,6 @@ $(document).ready(function () {
     $('#btn-save-project').click(function () {
         var name = $.trim($('#pr-name').val());
         var desc = $.trim($('#pr-desc').val());
-        var currentProjectIdHref = $('li.active').find('a').attr('href');
-        var currentProjectId = currentProjectIdHref.substr(1, currentProjectIdHref.length);
         var users = [];
         $('#pr-users-list').children('span').each(function () {
             users.push($(this).data('id'));
@@ -60,9 +58,11 @@ $(document).ready(function () {
                 "userIds": users
             };
 
+            var type =  id == "" ? 'POST' : 'PUT';
+
             $.ajax({
-                type: "PUT",
-                url: '/project',
+                type: type,
+                url: '/api/projects',
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json"
@@ -71,10 +71,7 @@ $(document).ready(function () {
                 success: function () {
                     cleanModal();
                     $('#project-modal').modal('hide');
-                    //Cookies.set("projectSet", currentProjectId);
                     location.reload();
-                    //$('.nav-pills > li > a[href="#"' + Cookies.get("projectSet") + ']').tab('show');
-                    //Cookies.remove("projectSet");
                 },
                 error: function (data) {
                     var error = data.error;
@@ -87,8 +84,8 @@ $(document).ready(function () {
     $('#pr-user').typeahead({
         source: function (query, process) {
             return $.ajax({
-                url: "/users",
-                data: {query: query},
+                url: "/api/users",
+                data: {name: query},
                 dataType: 'json',
                 success: function (result) {
 
@@ -136,8 +133,8 @@ $(document).ready(function () {
     $('#search-pr').typeahead({
         source: function (query, process) {
             return $.ajax({
-                url: "/projects",
-                data: {query: query},
+                url: "/api/projects",
+                data: {name: query},
                 dataType: 'json',
                 success: function (result) {
 
@@ -188,12 +185,11 @@ $(document).ready(function () {
 
     $('#btn-search-project').click(function() {
         $.ajax({
-            url: '/project?name='+$('#search-pr').val(),
+            url: '/api/projects/' + $('#search-pr').val(),
             success: function (data) {
                 $('#form-group-search').removeClass('has-error').addClass('has-success');
                 $('#search-error').addClass('non-visible').text('');
-                Cookies.set('projectId', data.projectId);//set 2 weeks
-                window.location.href = data.redirect + "?projectId=" + data.projectId;
+                window.location.href = '/projects/' + data.projectId + '/tickets';
             },
             error: function (data) {
                 var response = data.responseJSON;

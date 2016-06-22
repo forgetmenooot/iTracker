@@ -33,11 +33,6 @@ public final class UriBuilder {
                 toString();
     }
 
-
-    public String buildRootPathForAttachments() {
-        return build().toString();
-    }
-
     private StringBuilder build() {
         return new StringBuilder(System.getProperty("user.home")).
                 append(rootPath);

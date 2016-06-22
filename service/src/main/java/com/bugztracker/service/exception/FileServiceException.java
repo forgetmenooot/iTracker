@@ -1,9 +1,5 @@
 package com.bugztracker.service.exception;
 
-/**
- * Yuliia Vovk
- * 19.11.15
- */
 public class FileServiceException extends RuntimeException {
 
     public FileServiceException() {

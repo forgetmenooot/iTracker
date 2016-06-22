@@ -1,6 +1,7 @@
 .footer {
     position: fixed;
     bottom: 0;
+    left: 5px;
     width: 100%;
     font-family: Raleway, sans-serif;
     font-size: 12px;
@@ -83,14 +84,49 @@
     text-align: center;
 }
 
-/*body {*/
-    /*font-size: 140% !important;*/
-/*}*/
+.btn {
+    border-radius: 0 !important;
+}
 
-/*.btn {*/
-    /*font-size: 100% !important;*/
-/*}*/
+.nav>li>a {
+    padding: 7px 12px !important;
+}
 
-/*input {*/
-    /*font-size: 100% !important;*/
-/*}*/
+.nav-pills>li>a {
+    border-radius: 0 !important;
+}
+
+.panel {
+    border-radius: 0 !important;
+}
+.panel-heading {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.form-control {
+    border-radius: 0 !important;
+}
+
+.dropdown-menu {
+    border-radius: 0 !important;
+}
+
+.panel-footer {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    background-color: white !important;
+}
+
+.modal-content {
+    border-radius: 0 !important;
+}
+
+body {
+    background-color: white !important;
+}
+
+.navbar-default {
+    background-color: white !important;
+    border-color: #178acc !important;
+}

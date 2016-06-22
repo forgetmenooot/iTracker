@@ -1,11 +1,13 @@
 package com.bugztracker.service.impl;
 
-import com.bugztracker.commons.bean.Mail;
+import com.bugztracker.commons.bean.MailBean;
 import com.bugztracker.commons.entity.user.User;
 import com.bugztracker.service.IEmailService;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
@@ -13,12 +15,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.11.15
- * Time: 10:56
- */
 @Component
 public class EmailService implements IEmailService {
 
@@ -28,20 +27,18 @@ public class EmailService implements IEmailService {
     @Autowired
     private VelocityEngine velocityEngine;
 
-    @Value("${service.host.port}")
-    private String hostPost;
-
     @Value("${service.mail.sender}")
     private String mailSendFrom;
 
-    @Override
-    public void sendEmail(Mail mail, VelocityContext velocityContext) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mail.getMailFrom());
-        message.setTo(mail.getMailTo());
-        message.setSubject(mail.getMailSubject());
+    private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
-        Template template = velocityEngine.getTemplate("./templates/" + mail.getTemplateName());
+    private void sendEmail(MailBean mailBean, VelocityContext velocityContext) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(mailBean.getMailFrom());
+        message.setTo(mailBean.getMailTo());
+        message.setSubject(mailBean.getMailSubject());
+
+        Template template = velocityEngine.getTemplate("./templates/" + mailBean.getTemplateName());
 
         StringWriter stringWriter = new StringWriter();
         template.merge(velocityContext, stringWriter);
@@ -52,16 +49,21 @@ public class EmailService implements IEmailService {
 
     @Override
     public void sendRegisterEmail(User sendTo) {
-        Mail mail = new Mail();
-        mail.setMailFrom(mailSendFrom);
-        mail.setMailTo(sendTo.getEmail());
-        mail.setMailSubject("Activation link for Bugztracker");
-        mail.setTemplateName("confirmation-template.vm");
+        MailBean mailBean = new MailBean();
+        mailBean.setMailFrom(mailSendFrom);
+        mailBean.setMailTo(sendTo.getEmail());
+        mailBean.setMailSubject("Activation link for iTracker");
+        mailBean.setTemplateName("confirmation-template.vm");
 
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("fullName", sendTo.getFullName());
-        velocityContext.put("link",  hostPost + "/account/activation?token=" + sendTo.getRegistrationToken());
 
-        sendEmail(mail, velocityContext);
+        try {
+            velocityContext.put("link",  InetAddress.getLocalHost().getHostAddress() + ":8082/api/auth/activate/" + sendTo.getRegistrationToken());
+        } catch (UnknownHostException e) {
+            LOG.error("Can't get host address {}", e);
+        }
+
+        sendEmail(mailBean, velocityContext);
     }
 }

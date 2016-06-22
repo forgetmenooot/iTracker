@@ -1,7 +1,9 @@
+var lang = 'en-us';
+
 function preLoadProjectNames() {
     var userId = $("#user-session-id").val();
     $.ajax({
-        url: "/user/" + userId + "/projects",
+        url: "/api/users/" + userId + "/projects",
         success: function (data) {
             if (!data.message_projects) {
                 $.each(data, function (i, pr) {
@@ -10,7 +12,7 @@ function preLoadProjectNames() {
                     );
                     $('#pr-content').append(
                         '<div class="tab-pane fade in" id="' + pr.id + '">' +
-                        '<span class="pull-right text-muted small" id="' + pr.id + '-pr-date"></span><br/>'+
+                        '<span class="pull-right text-muted small" id="' + pr.id + '-pr-date"></span><br/>' +
                         '<div class="row">' +
                         '<div class="col-lg-3 col-md-6">' +
                         '<div class="panel panel-primary">' +
@@ -25,7 +27,7 @@ function preLoadProjectNames() {
                         '</div>' +
                         '</div>' +
                         '</div>' +
-                        '<a href="/project/issues?status=OPENED">' +
+                        '<a href="/projects/' + pr.id + '/tickets?status=OPENED">' +
                         '<div class="panel-footer">' +
                         '<span class="pull-left">View Details</span>' +
                         '<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>' +
@@ -47,7 +49,7 @@ function preLoadProjectNames() {
                         '</div>' +
                         '</div>' +
                         '</div>' +
-                        '<a href="/project/issues?status=INPROGRESS">' +
+                        '<a href="/projects/' + pr.id + '/tickets?status=INPROGRESS">' +
                         '<div class="panel-footer">' +
                         '<span class="pull-left">View Details</span>' +
                         '<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>' +
@@ -69,7 +71,7 @@ function preLoadProjectNames() {
                         '</div>' +
                         '</div>' +
                         '</div>' +
-                        '<a href="/project/issues?status=RESOLVED">' +
+                        '<a href="/projects/' + pr.id + '/tickets?status=RESOLVED">' +
                         '<div class="panel-footer">' +
                         '<span class="pull-left">View Details</span>' +
                         '<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>' +
@@ -91,7 +93,7 @@ function preLoadProjectNames() {
                         '</div>' +
                         '</div>' +
                         '</div>' +
-                        '<a href="/project/issues?status=CLOSED">' +
+                        '<a href="/projects/' + pr.id + '/tickets?status=CLOSED">' +
                         '<div class="panel-footer">' +
                         '<span class="pull-left">View Details</span>' +
                         '<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>' +
@@ -142,7 +144,6 @@ function preLoadProjectNames() {
                         '</thead>' +
                         '<tbody id="' + pr.id + '-issues-status"></tbody>' +
                         '</table>' +
-                            //'<a href="#" class="btn btn-default btn-block">View all tasks</a>' +
                         '</div>' +
                         '</div>' +
                         '</div>' +
@@ -160,45 +161,45 @@ function preLoadProjectNames() {
                         '</div>'
                     );
 
-                    $('#' + pr.id + '-pr-date').text(moment(pr.date).calendar());
-                    $('#' + pr.id + '-pr-description').text(pr.description);
+                    //$('#' + pr.id + '-pr-date').text(moment(pr.date).calendar());
+                    $('#' + pr.id + '-pr-description').text(pr.description == undefined || pr.description == "" ? "No description" : pr.description);
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/issues/count?status=OPENED",
+                        url: "/api/projects/" + pr.id + "/tickets/count?status=OPENED",
                         success: function (data) {
                             $('#' + pr.id + '-opened-count').text(data);
                         }
                     });
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/issues/count?status=INPROGRESS",
+                        url: "/api/projects/" + pr.id + "/tickets/count?status=INPROGRESS",
                         success: function (data) {
                             $('#' + pr.id + '-in-progress-count').text(data);
                         }
                     });
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/issues/count?status=RESOLVED",
+                        url: "/api/projects/" + pr.id + "/tickets/count?status=RESOLVED",
                         success: function (data) {
                             $('#' + pr.id + '-resolved-count').text(data);
                         }
                     });
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/issues/count?status=CLOSED",
+                        url: "/api/projects/" + pr.id + "/tickets/count?status=CLOSED",
                         success: function (data) {
                             $('#' + pr.id + '-closed-count').text(data);
                         }
                     });
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/participants",
+                        url: "/api/projects/" + pr.id + "/participants",
                         success: function (data) {
                             $.each(data, function (i, user) {
                                 $('#' + pr.id + '-pr-participants').append(
                                     '<tr>' +
                                     '<td class="text-center">' + (i + 1) + '</td>' +
-                                    '<td style="word-wrap: break-word" class="text-center">' + user.fullName + '</td>' +
+                                    '<td style="word-wrap: break-word" class="text-center">' + Hyphenator.hyphenate(user.fullName, lang) + '</td>' +
                                     '<td style="word-wrap: break-word" class="text-center">' + user.email + '</td>' +
                                     '</tr>'
                                 );
@@ -207,7 +208,7 @@ function preLoadProjectNames() {
                     });
 
                     $.ajax({
-                        url: "/project/" + pr.id + "/issues?status=INPROGRESS&assignee_id=" + userId,
+                        url: "/api/projects/" + pr.id + "/tickets?status=INPROGRESS&assignee_id=" + userId,
                         success: function (data) {
                             if (!data.message_status) {
                                 $.each(data, function (i, issue) {
@@ -215,18 +216,16 @@ function preLoadProjectNames() {
                                         '<tr>' +
                                         '<td class="text-center">' + (i + 1) + '</td>' +
                                         '<td class="non-visible issue-id">' + issue.id + '</td>' +
-                                        '<td style="word-wrap: break-word" class="text-center">' + issue.name + '</td>' +
+                                        '<td style="word-wrap: break-word" class="text-center">' + Hyphenator.hyphenate(issue.name, lang) + '</td>' +
                                         '<td style="word-wrap: break-word" class="text-center">' + issue.priority + '</td>' +
-                                        '<td><a class="issue-link" href="/project/issue"><span class="pull-right" style="margin-top: 5%; margin-right: 40%"><i class="fa fa-arrow-circle-right"></i></span></a></td>' +
+                                        '<td><a class="issue-link"><span class="pull-right" style="margin-top: 5%; margin-right: 40%"><i class="fa fa-arrow-circle-right"></i></span></a></td>' +
                                         '</tr>'
                                     );
                                 });
 
                                 $('.issue-link').on("click", function (e) {
                                     e.preventDefault();
-                                    console.log($(this).parent().parent().find('.issue-id').text());
-                                    Cookies.set("issueId", $(this).parent().parent().find('.issue-id').text());
-                                    window.location.href = "/project/issue";
+                                    window.location.href = "/projects/" + projectId  + '/tickets/' + $(this).parent().parent().find('.issue-id').text();
                                 });
 
                             } else {
@@ -241,10 +240,10 @@ function preLoadProjectNames() {
                     });
 
                 });
-                $('#project-names').find('li').first().addClass('active');
-                $('#pr-content').find('div').first().addClass('active');
-                projectId = $('#project-names').find('li.active > a').attr('href').substring(1);
-                Cookies.set("projectId", projectId);
+                //$('#project-names').find('li').first().addClass('active');
+                //$('#pr-content').find('div').first().addClass('active');
+                //projectId = $('#project-names').find('li.active > a').attr('href').substring(1);
+                //Cookies.set("projectId", projectId);
 
                 $('#btn-archive-project').removeClass('disabled');
                 $('#btn-edit-project').removeClass('disabled');
@@ -252,17 +251,26 @@ function preLoadProjectNames() {
 
             } else {
                 $('#project-names').append(
-                    '<li class="center-text">' + data.message_projects + '</li>'
+                    '<li class="center-text" style="font-style: italic">' + data.message_projects + '</li>'
                 );
                 $('#btn-archive-project').addClass('disabled');
                 $('#btn-edit-project').addClass('disabled');
                 $('#btn-create-issue').addClass('disabled');
             }
             $(".nav-pills > li > a").click(function (e) {
-                projectId = $(e.target).attr("href").substr(1, (e.target).length);
+                projectId = $(e.target).attr("href").substr(1);
                 Cookies.set("projectId", projectId);
             });
-
+            $.each($('.nav-pills li a'), function (i, elem) {
+                if ($(elem).attr('href').substr(1) == Cookies.get("projectId")) {
+                    $(elem).parent().addClass('active');
+                    $.each($('.tab-pane'), function (i, elem) {
+                        if ($(elem).attr('id') == Cookies.get("projectId")) {
+                            $(elem).addClass('active');
+                        }
+                    });
+                }
+            });
         }
     });
 }
@@ -273,16 +281,16 @@ function cleanModal() {
     $('#invalid-project-archive').addClass('non-visible').empty();
 }
 
-$(document).ready(function () {
+$.when(preLoadProjectNames()).done(function () {
 
-    preLoadProjectNames();
+    Hyphenator.run();
 
     $('#btn-arch-project').click(function () {
         var currentProjectIdHref = $('li.active').find('a').attr('href');
         var currentProjectId = currentProjectIdHref.substr(1, currentProjectIdHref.length);
         $.ajax({
-            type: "POST",
-            url: '/project/' + currentProjectId + '/archive',
+            type: "PUT",
+            url: '/api/projects/' + currentProjectId + '/archive',
             success: function () {
                 $('#archive-project-modal').modal('hide');
                 location.reload();

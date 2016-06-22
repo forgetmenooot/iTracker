@@ -1,12 +1,9 @@
 package com.bugztracker.commons.bean;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.List;
 
-/**
- * Author: Yuliia Vovk
- * Date: 04.03.16
- * Time: 12:21
- */
 public class ProjectBean {
 
     private String id;
@@ -44,5 +41,15 @@ public class ProjectBean {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("description", description)
+                .append("userIds", userIds)
+                .toString();
     }
 }

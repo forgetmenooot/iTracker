@@ -15,11 +15,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
-/**
- * Author: Yuliia Vovk
- * Date: 21.02.16
- * Time: 10:10
- */
 @EnableWebMvc
 @Configuration
 @EnableWebSocket
@@ -38,6 +33,24 @@ public class MvcContextConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public InternalResourceViewResolver provideViewResolver() {
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+        viewResolver.setPrefix("/WEB-INF/pages/");
+        viewResolver.setSuffix(".jsp");
+        return viewResolver;
+    }
+
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new AuthorizationInterceptor()).
+//                addPathPatterns("/*").
+//                excludePathPatterns("/resources/");
+//        registry.addInterceptor(new AuthenticationInterceptor()).
+//                addPathPatterns("/*").
+//                excludePathPatterns("/resources/");
+//    }
+
+    @Bean
+    public InternalResourceViewResolver initViewResolver() {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setPrefix("/WEB-INF/pages/");
         viewResolver.setSuffix(".jsp");

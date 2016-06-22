@@ -15,14 +15,14 @@ $(document).ready(function () {
             };
             $.ajax({
                 type: 'POST',
-                url: '/login',
+                url: '/api/auth/login',
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json"
                 },
                 data: JSON.stringify(credentials),
                 success: function (data) {
-                    window.location.href = data.redirect;
+                    window.location.href = '/dashboard';
                 },
                 error: function (data) {
                     var error = data.responseJSON.error;

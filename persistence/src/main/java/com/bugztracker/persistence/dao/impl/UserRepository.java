@@ -1,9 +1,9 @@
 package com.bugztracker.persistence.dao.impl;
 
 import com.bugztracker.commons.entity.user.User;
-import com.bugztracker.commons.utils.DbUtils;
 import com.bugztracker.persistence.dao.BaseDao;
 import com.bugztracker.persistence.dao.IUserRepository;
+import com.bugztracker.persistence.utils.DbUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.index.Index;
@@ -16,15 +16,10 @@ import java.util.regex.Pattern;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-/**
- * Created by Oleh_Osyka
- * Date: 13.02.2016
- * Time: 18:40
- */
 @Repository
 public class UserRepository extends BaseDao<User> implements IUserRepository {
 
-    public static final String COLLECTION_NAME = "Users";
+    private static final String COLLECTION_NAME = "Users";
 
     protected UserRepository() {
         super(COLLECTION_NAME, User.class);
@@ -64,7 +59,7 @@ public class UserRepository extends BaseDao<User> implements IUserRepository {
 
     @Override
     public void removeUsersWithRegistrationDatePassed(Date date) {
-        mongo().remove(query(where("dueRegisterDate").lt(date)), COLLECTION_NAME);
+        mongoOperations.remove(query(where("dueRegisterDate").lt(date)), COLLECTION_NAME);
     }
 
     @Override

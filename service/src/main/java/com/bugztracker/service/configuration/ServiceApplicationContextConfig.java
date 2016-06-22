@@ -13,11 +13,6 @@ import org.springframework.ui.velocity.VelocityEngineFactoryBean;
 
 import java.util.Properties;
 
-/**
- * Author: Yuliia Vovk
- * Date: 20.02.16
- * Time: 10:27
- */
 @Configuration
 @ComponentScan("com.bugztracker.service")
 public class ServiceApplicationContextConfig {

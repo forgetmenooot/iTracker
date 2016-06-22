@@ -11,7 +11,7 @@
     </jsp:attribute>
 
     <jsp:body>
-        <body style="background: url('/resources/images/macbook-5.jpg') center center no-repeat fixed; opacity: 0.9; background-size: cover;">
+        <body class="login">
         <div class="col-md-4 col-md-offset-8">
             <div class="alert alert-danger non-visible alert-danger-position" id="invalid_login"
                  role="alert">
@@ -25,8 +25,8 @@
             <div class="col-md-4">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                        <h2 class="panel-title">Please, Sign in or <a type="button" class="btn btn-success"
-                                                                      href="<c:url value="/signup"/>">Sign up</a></h2>
+                        <h2 class="panel-title">Please, Login or <a type="button" class="btn btn-success"
+                                                                      href="<c:url value="/auth/register"/>">Register</a></h2>
                     </div>
                     <div class="panel-body">
                         <form role="form">
@@ -47,8 +47,7 @@
                                     </label>
                                 </div>
                                 <button type="submit" class="btn btn-lg btn-primary btn-block"
-                                        id="sign_in_btn">Sign
-                                    in
+                                        id="sign_in_btn">Login
                                 </button>
                             </fieldset>
                         </form>
@@ -57,6 +56,8 @@
             </div>
         </div>
         </body>
+        <footer class="footer">
+        <p style="color: white">2016, iTracker.</p>
+    </footer>
     </jsp:body>
-
 </t:template>

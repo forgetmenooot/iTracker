@@ -2,9 +2,9 @@ package com.bugztracker.commons.entity.issue;
 
 import com.bugztracker.commons.entity.project.Project;
 import com.bugztracker.commons.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.Id;
@@ -13,22 +13,18 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Y. Vovk
- * Date: 02.10.15
- * Time: 0:01
- */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Issue implements Serializable {
 
     @Id
     private String id;
 
     @NotBlank(message = "Name is required! ")
-    @Size(max = 300, message = "Please, shorten the name of issue. Not more than 300 symbols is possible!")
+    @Size(max = 50, message = "Please, shorten the name of issue. Not more than 50 symbols is possible!")
     private String name;
 
     @Digits(integer = 2, fraction = 1, message = "Version must be a float number from 1 to 10! ")
@@ -41,7 +37,7 @@ public class Issue implements Serializable {
     @NotNull(message = "Priority is required! ")
     private Priority priority;
 
-    private Status status;
+    private Status status = Status.OPENED;
 
     private String description;
 
@@ -53,8 +49,8 @@ public class Issue implements Serializable {
     @NotNull(message = "Assignee is required! ")
     private User assignee;
     private Project project;
-    private List<String> attachmentPaths;
-    private List<Comment> comments;
+    private List<String> attachmentPaths = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -177,16 +173,60 @@ public class Issue implements Serializable {
         Issue issue = (Issue) o;
 
         return new EqualsBuilder()
+                .append(id, issue.id)
                 .append(name, issue.name)
+                .append(version, issue.version)
                 .append(creationDate, issue.creationDate)
+                .append(lastUpdateDate, issue.lastUpdateDate)
+                .append(priority, issue.priority)
+                .append(status, issue.status)
+                .append(description, issue.description)
+                .append(category, issue.category)
+                .append(creator, issue.creator)
+                .append(assignee, issue.assignee)
+                .append(project, issue.project)
+                .append(attachmentPaths, issue.attachmentPaths)
+                .append(comments, issue.comments)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .append(id)
                 .append(name)
+                .append(version)
                 .append(creationDate)
+                .append(lastUpdateDate)
+                .append(priority)
+                .append(status)
+                .append(description)
+                .append(category)
+                .append(creator)
+                .append(assignee)
+                .append(project)
+                .append(attachmentPaths)
+                .append(comments)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("version", version)
+                .append("creationDate", creationDate)
+                .append("lastUpdateDate", lastUpdateDate)
+                .append("priority", priority)
+                .append("status", status)
+                .append("description", description)
+                .append("category", category)
+                .append("creator", creator)
+                .append("assignee", assignee)
+                .append("project", project)
+                .append("attachmentPaths", attachmentPaths)
+                .append("comments", comments)
+                .toString();
     }
 }

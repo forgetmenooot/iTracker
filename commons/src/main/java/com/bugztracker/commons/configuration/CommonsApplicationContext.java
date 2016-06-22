@@ -12,11 +12,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-/**
- * Created by Oleh_Osyka
- * Date: 13.02.2016
- * Time: 13:12
- */
 @Configuration
 @ComponentScan("com.bugztracker.commons")
 public class CommonsApplicationContext {

@@ -15,7 +15,7 @@ $(document).ready(function () {
             };
             $.ajax({
                 type: 'POST',
-                url: '/register',
+                url: '/api/auth/register',
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json"
@@ -23,7 +23,7 @@ $(document).ready(function () {
                 data: JSON.stringify(credentials),
                 success: function (data) {
                     var success = data.success;
-                    $('#alert-message').removeClass('non-visible').removeClass('has-danger').addClass('alert-success').text(success);
+                    $('#alert-message').removeClass('non-visible').removeClass('has-danger').removeClass('alert-danger').addClass('alert-success').addClass('has-success').text(success);
                     $('#full_name').val('');
                     $('#email').val('');
                     $('#password').val('');
@@ -34,7 +34,7 @@ $(document).ready(function () {
                     $('#form_group_password').removeClass('has-success').addClass('has-error');
                     $('#form_group_full_name').removeClass('has-success').addClass('has-error');
                     $('#form_group_email').removeClass('has-success').addClass('has-error');
-                    $('#alert-message').removeClass('non-visible').removeClass('has-success').addClass('alert-danger').text(error);
+                    $('#alert-message').removeClass('non-visible').removeClass('has-success').removeClass('alert-success').addClass('alert-danger').addClass('has-error').text(error);
                 }
             });
         }
